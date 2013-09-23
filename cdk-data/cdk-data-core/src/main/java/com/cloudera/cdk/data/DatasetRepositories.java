@@ -197,5 +197,4 @@ public class DatasetRepositories {
 
     throw new IllegalArgumentException("Unknown storage URI:" + storage);
   }
-
 }
