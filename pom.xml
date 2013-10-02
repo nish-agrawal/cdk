@@ -28,6 +28,7 @@
     <module>cdk-maven-plugin</module>
     <module>cdk-tools</module>
     <module>cdk-morphlines</module>
+    <module>cdk-command-line</module>
   </modules>
 
   <name>Cloudera Development Kit</name>
