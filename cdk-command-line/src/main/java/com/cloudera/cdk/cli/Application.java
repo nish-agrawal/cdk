@@ -96,23 +96,7 @@ public class Application implements Command {
 
         repo.delete(commandLine.getOptionValue("name"));
       } else {
-        HelpFormatter helpFormatter = new HelpFormatter();
-        PrintWriter pw = new PrintWriter(System.out);
-
-        helpFormatter.printHelp(pw, 74,
-          "cdk-cli [-h|-c|-u|-d] [command-specific options]", "\nOptions:", options, 2, 3, null);
-
-        pw.append(
-          Joiner.on("\n").join(
-            "\nOne of --help, --create, --delete, or --update must be provided.\n",
-            "  --create requires: --repo, --name, --schema",
-            "  --drop   requires: --repo, --name",
-            "  --update requires: --repo, --name",
-            "           supports: --schema\n"
-          )
-        );
-
-        pw.flush();
+        displayHelp();
       }
     } catch (ParseException e) {
       logger.error(e.getMessage());
@@ -122,6 +106,24 @@ public class Application implements Command {
       logger.debug("Exception follows", e);
     }
 
+  private void displayHelp() {
+    HelpFormatter helpFormatter = new HelpFormatter();
+    PrintWriter pw = new PrintWriter(System.out);
+
+    helpFormatter.printHelp(pw, 74,
+      "cdk-cli [-h|-c|-u|-d] [command-specific options]", "\nOptions:", options, 2, 3, null);
+
+    pw.append(
+      Joiner.on("\n").join(
+        "\nOne of --help, --create, --delete, or --update must be provided.\n",
+        "  --create requires: --repo, --name, --schema",
+        "  --drop   requires: --repo, --name",
+        "  --update requires: --repo, --name",
+        "           supports: --schema\n"
+      )
+    );
+
+    pw.flush();
   }
 
   private void buildOptions() {
