@@ -15,39 +15,68 @@
  */
 package com.cloudera.cdk.cli;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
+@RunWith(Parameterized.class)
 public class TestApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(TestApplication.class);
+
+  private final List<String[]> commandLines;
+
+  @Parameterized.Parameters
+  public static List<Object[]> parameters() {
+    String schemaStr = "{ \"type\": \"record\", \"name\": \"Message\", \"fields\": [ { \"type\": \"string\", \"name\": \"message\" } ] }";
+
+    return Lists.newArrayList(
+      new Object[] { Lists.<String[]>newArrayList(new String[] { "--help" }) },
+      new Object[] { Lists.<String[]>newArrayList(new String[] { "--create" }) },
+      new Object[] { Lists.<String[]>newArrayList(new String[] { "--create --drop" }) },
+      new Object[] { Lists.<String[]>newArrayList(new String[] { "-c --drop" }) },
+      new Object[] {
+        Lists.newArrayList(
+          new String[] { "--create", "--repo", "dsr:file:///tmp/cli-test", "--name", "test", "--schema", schemaStr },
+          new String[] { "--drop", "--repo", "dsr:file:///tmp/cli-test", "--name", "test" }
+        )
+      },
+      new Object[] {
+        Lists.newArrayList(
+          new String[] { "--create", "--repo", "dsr:file:target/cli-test", "--name", "test", "--schema", schemaStr },
+          new String[] { "--drop", "--repo", "dsr:file:target/cli-test", "--name", "test" }
+        )
+      }
+    );
+  }
+
+  public TestApplication(List<String[]> parameters) {
+    this.commandLines = parameters;
+  }
 
   @Test
   public void testOptions() {
     Application app = new Application();
 
-    logger.debug("Trying --help");
-    app.run(new String[] { "--help" });
+    logger.debug("Command lines:{}", commandLines);
 
-    logger.debug("Trying --create");
-    app.run(new String[] { "--create" });
+    for (String[] commandLine : commandLines) {
+      logger.debug("Trying commandLines:{}", commandLine);
+      app.run(commandLine);
+    }
 
-    logger.debug("Trying --create --drop");
-    app.run(new String[] { "--create", "--drop" });
-
-    logger.debug("Trying -c --drop");
-    app.run(new String[] { "-c", "--drop" });
-
-    logger.debug("Trying --create --repo dsr:file:///tmp/cli-test --name test --schema bar");
-    app.run(new String[] { "--create", "--repo", "dsr:file:///tmp/cli-test", "--name", "test", "--schema", "{ \"type\": \"record\", \"name\": \"Message\", \"fields\": [ { \"type\": \"string\", \"name\": \"message\" } ] }" });
-    app.run(new String[] { "--drop", "--repo", "dsr:file:///tmp/cli-test", "--name", "test" });
-
-    logger.debug("Trying --create --repo dsr:file:target/cli-test --name test --schema bar");
-    app.run(new String[] { "--create", "--repo", "dsr:file:target/cli-test", "--name", "test", "--schema", "bar" });
-
-    logger.debug("Trying --create --repo dsr:hdfs://localhost:8020/tmp/cli-test --name test --schema bar");
-    app.run(new String[] { "--create", "--repo", "dsr:hdfs://localhost:8020/tmp/cli-test", "--name", "test", "--schema", "bar" });
+//    try {
+//      logger.debug("Trying --create --repo dsr:hdfs://localhost:8020/tmp/cli-test --name test --schema {}", schemaStr);
+//      app.run(new String[] { "--create", "--repo", "dsr:hdfs://localhost:8020/tmp/cli-test", "--name", "test", "--schema", schemaStr });
+//      app.run(new String[] { "--drop", "--repo", "dsr:hdfs://localhost:8020/tmp/cli-test", "--name", "test" });
+//    } catch (DatasetRepositoryException e) {
+//      logger.info("Failed to create an HDFS dataset; assuming HDFS is not running.", e);
+//    }
   }
 
 }
