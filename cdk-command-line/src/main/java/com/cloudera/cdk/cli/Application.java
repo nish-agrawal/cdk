@@ -97,6 +97,12 @@ public class Application implements Command {
         DatasetRepository repo = DatasetRepositories.connect(new URI(commandLine.getOptionValue("repo")));
 
         repo.delete(commandLine.getOptionValue("name"));
+      } else if (commandLine.hasOption("list")) {
+        DatasetRepository repo = DatasetRepositories.connect(new URI(commandLine.getOptionValue("repo")));
+
+        for (String datasetName : repo.list()) {
+          System.out.println(datasetName);
+        }
       } else {
         displayHelp();
       }
@@ -149,6 +155,8 @@ public class Application implements Command {
       .description("create a dataset").get());
     options.addOption(new OptionBuilder().shortOption("u").longOption("update")
       .description("update a dataset").get());
+    options.addOption(new OptionBuilder().shortOption("l").longOption("list")
+      .description("list existing datasets").get());
     options.addOption(new OptionBuilder().shortOption("d").longOption("drop")
       .description("drop a dataset").get());
 
@@ -193,13 +201,15 @@ public class Application implements Command {
     Map<String, Set<String>> exclusiveOf = Maps.newHashMap();
     Map<String, Set<String>> requiredWith = Maps.newHashMap();
 
-    exclusiveOf.put("create", Sets.newHashSet("drop", "update"));
-    exclusiveOf.put("update", Sets.newHashSet("create", "drop", "format", "permissions"));
-    exclusiveOf.put("drop", Sets.newHashSet("create", "update", "format", "permissions", "schema"));
+    exclusiveOf.put("create", Sets.newHashSet("drop", "update", "list"));
+    exclusiveOf.put("update", Sets.newHashSet("create", "drop", "list", "format", "permissions"));
+    exclusiveOf.put("drop", Sets.newHashSet("create", "update", "list", "format", "permissions", "schema"));
+    exclusiveOf.put("list", Sets.newHashSet("create", "drop", "update", "format", "permissions", "schema", "name"));
 
     requiredWith.put("create", Sets.newHashSet("repo", "name", "schema"));
     requiredWith.put("update", Sets.newHashSet("repo", "name"));
     requiredWith.put("drop", Sets.newHashSet("repo", "name"));
+    requiredWith.put("list", Sets.newHashSet("repo"));
 
     for (Option option : commandLine.getOptions()) {
       if (exclusiveOf.containsKey(option.getLongOpt())) {
