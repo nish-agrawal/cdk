@@ -45,6 +45,9 @@ public class Application implements Command {
 
   private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
+  private Options options;
+  private CommandLine commandLine;
+
   public static void main(String[] args) {
     Application application = new Application();
 
@@ -53,91 +56,10 @@ public class Application implements Command {
 
   @Override
   public void run(String[] args) {
-    Options options = new Options();
-
-    // Global options
-    options.addOption(new OptionBuilder().shortOption("h").longOption("help")
-      .description("display help").get());
-
-    // Dataset global options
-    options.addOption(new OptionBuilder().shortOption("r").longOption("repo")
-      .argCount(1).description("dataset repository URI").argName("uri").get());
-    options.addOption(new OptionBuilder().shortOption("n").longOption("name")
-      .argCount(1).description("dataset name").argName("name").get());
-    options.addOption(new OptionBuilder().shortOption("c").longOption("create")
-      .description("create a dataset").get());
-    options.addOption(new OptionBuilder().shortOption("u").longOption("update")
-      .description("update a dataset").get());
-    options.addOption(new OptionBuilder().shortOption("d").longOption("drop")
-      .description("drop a dataset").get());
-
-    // Dataset create options
-    options.addOption(new OptionBuilder().shortOption("f").longOption("format")
-      .argCount(1).argName("parquet|avro").description("dataset format").get());
-
-    // Dataset create or update options
-    options.addOption(new OptionBuilder().shortOption("s").longOption("schema")
-      .argCount(1).argName("avro schema").description("dataset schema").get());
-    options.addOption(new OptionBuilder().shortOption("p").longOption("permissions")
-      .argCount(1).argName("perms").description("dataset permissions").get());
-    options.addOption(new OptionBuilder().shortOption("L").longOption("level")
-      .optionalArg(true).argCount(1).argName("level")
-      .description("logging level").get());
-
-    CommandLineParser parser = new GnuParser();
+    buildOptions();
 
     try {
-      CommandLine commandLine = parser.parse(options, args);
-
-      // Override all log4j settings if the user specifies something.
-      if (commandLine.hasOption("level")) {
-        Level level = Level.toLevel(commandLine.getOptionValue("level", "INFO"));
-
-        LogManager.getRootLogger().setLevel(level);
-        logger.debug("Set log level on logger:{} to:{}", LogManager.getRootLogger().getName(), level);
-
-        Enumeration currentLoggers = LogManager.getCurrentLoggers();
-        while (currentLoggers.hasMoreElements()) {
-          org.apache.log4j.Logger l = (org.apache.log4j.Logger) currentLoggers.nextElement();
-          l.setLevel(level);
-          logger.debug("Set log level on logger:{} to:{}", l.getName(), level);
-        }
-      }
-
-      /*
-       * Apache Commons CLI doesn't support fine grained control over option
-       * compatibility so we build a pair of tables to track exclusivity and
-       * dependencies.
-       */
-
-      Map<String, Set<String>> exclusiveOf = Maps.newHashMap();
-      Map<String, Set<String>> requiredWith = Maps.newHashMap();
-
-      exclusiveOf.put("create", Sets.newHashSet("drop", "update"));
-      exclusiveOf.put("update", Sets.newHashSet("create", "drop", "format", "permissions"));
-      exclusiveOf.put("drop", Sets.newHashSet("create", "update", "format", "permissions", "schema"));
-
-      requiredWith.put("create", Sets.newHashSet("repo", "name", "schema"));
-      requiredWith.put("update", Sets.newHashSet("repo", "name"));
-      requiredWith.put("drop", Sets.newHashSet("repo", "name"));
-
-      for (Option option : commandLine.getOptions()) {
-        if (exclusiveOf.containsKey(option.getLongOpt())) {
-          for (String incompat : exclusiveOf.get(option.getLongOpt())) {
-            if (commandLine.hasOption(incompat)) {
-              throw new ParseException("Options --" + option.getLongOpt() + " and --" + incompat + " are incompatible");
-            }
-          }
-        }
-
-        if (requiredWith.containsKey(option.getLongOpt())) {
-          for (String required : requiredWith.get(option.getLongOpt())) {
-            if (!commandLine.hasOption(required)) {
-              throw new ParseException("Option --" + option.getLongOpt() + " requires option --" + required + " to be present");
-            }
-          }
-        }
-      }
+      parseOptions(args);
 
       if (commandLine.hasOption("create")) {
         DatasetRepository repo = DatasetRepositories.connect(new URI(commandLine.getOptionValue("repo")));
@@ -198,6 +120,95 @@ public class Application implements Command {
     } catch (URISyntaxException e) {
       logger.error("Invalid dataset repository URI - {}", e.getMessage());
       logger.debug("Exception follows", e);
+    }
+
+  }
+
+  private void buildOptions() {
+    options = new Options();
+
+    // Global options
+    options.addOption(new OptionBuilder().shortOption("h").longOption("help")
+      .description("display help").get());
+
+    // Dataset global options
+    options.addOption(new OptionBuilder().shortOption("r").longOption("repo")
+      .argCount(1).description("dataset repository URI").argName("uri").get());
+    options.addOption(new OptionBuilder().shortOption("n").longOption("name")
+      .argCount(1).description("dataset name").argName("name").get());
+    options.addOption(new OptionBuilder().shortOption("c").longOption("create")
+      .description("create a dataset").get());
+    options.addOption(new OptionBuilder().shortOption("u").longOption("update")
+      .description("update a dataset").get());
+    options.addOption(new OptionBuilder().shortOption("d").longOption("drop")
+      .description("drop a dataset").get());
+
+    // Dataset create options
+    options.addOption(new OptionBuilder().shortOption("f").longOption("format")
+      .argCount(1).argName("parquet|avro").description("dataset format").get());
+
+    // Dataset create or update options
+    options.addOption(new OptionBuilder().shortOption("s").longOption("schema")
+      .argCount(1).argName("avro schema").description("dataset schema").get());
+    options.addOption(new OptionBuilder().shortOption("p").longOption("permissions")
+      .argCount(1).argName("perms").description("dataset permissions").get());
+    options.addOption(new OptionBuilder().shortOption("L").longOption("level")
+      .optionalArg(true).argCount(1).argName("level")
+      .description("logging level").get());
+  }
+
+  private void parseOptions(String[] args) throws ParseException {
+    CommandLineParser parser = new GnuParser();
+    commandLine = parser.parse(options, args);
+
+    // Override all log4j settings if the user specifies something.
+    if (commandLine.hasOption("level")) {
+      Level level = Level.toLevel(commandLine.getOptionValue("level", "INFO"));
+
+      LogManager.getRootLogger().setLevel(level);
+      logger.debug("Set log level on logger:{} to:{}", LogManager.getRootLogger().getName(), level);
+
+      Enumeration currentLoggers = LogManager.getCurrentLoggers();
+      while (currentLoggers.hasMoreElements()) {
+        org.apache.log4j.Logger l = (org.apache.log4j.Logger) currentLoggers.nextElement();
+        l.setLevel(level);
+        logger.debug("Set log level on logger:{} to:{}", l.getName(), level);
+      }
+    }
+
+      /*
+       * Apache Commons CLI doesn't support fine grained control over option
+       * compatibility so we build a pair of tables to track exclusivity and
+       * dependencies.
+       */
+
+    Map<String, Set<String>> exclusiveOf = Maps.newHashMap();
+    Map<String, Set<String>> requiredWith = Maps.newHashMap();
+
+    exclusiveOf.put("create", Sets.newHashSet("drop", "update"));
+    exclusiveOf.put("update", Sets.newHashSet("create", "drop", "format", "permissions"));
+    exclusiveOf.put("drop", Sets.newHashSet("create", "update", "format", "permissions", "schema"));
+
+    requiredWith.put("create", Sets.newHashSet("repo", "name", "schema"));
+    requiredWith.put("update", Sets.newHashSet("repo", "name"));
+    requiredWith.put("drop", Sets.newHashSet("repo", "name"));
+
+    for (Option option : commandLine.getOptions()) {
+      if (exclusiveOf.containsKey(option.getLongOpt())) {
+        for (String incompat : exclusiveOf.get(option.getLongOpt())) {
+          if (commandLine.hasOption(incompat)) {
+            throw new ParseException("Options --" + option.getLongOpt() + " and --" + incompat + " are incompatible");
+          }
+        }
+      }
+
+      if (requiredWith.containsKey(option.getLongOpt())) {
+        for (String required : requiredWith.get(option.getLongOpt())) {
+          if (!commandLine.hasOption(required)) {
+            throw new ParseException("Option --" + option.getLongOpt() + " requires option --" + required + " to be present");
+          }
+        }
+      }
     }
   }
 
