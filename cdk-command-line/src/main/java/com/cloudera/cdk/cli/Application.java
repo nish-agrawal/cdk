@@ -176,12 +176,11 @@ public class Application implements Command {
       }
     }
 
-      /*
-       * Apache Commons CLI doesn't support fine grained control over option
-       * compatibility so we build a pair of tables to track exclusivity and
-       * dependencies.
-       */
-
+    /*
+     * Apache Commons CLI doesn't support fine grained control over option
+     * compatibility so we build a pair of tables to track exclusivity and
+     * dependencies.
+     */
     Map<String, Set<String>> exclusiveOf = Maps.newHashMap();
     Map<String, Set<String>> requiredWith = Maps.newHashMap();
 
