@@ -51,11 +51,13 @@ public class Application implements Command {
   public static void main(String[] args) {
     Application application = new Application();
 
-    application.run(args);
+    System.exit(application.run(args));
   }
 
   @Override
-  public void run(String[] args) {
+  public int run(String[] args) {
+    int exitCode = 0;
+
     buildOptions();
 
     try {
@@ -101,10 +103,15 @@ public class Application implements Command {
     } catch (ParseException e) {
       logger.error(e.getMessage());
       logger.debug("Exception follows", e);
+      exitCode = 1;
     } catch (URISyntaxException e) {
       logger.error("Invalid dataset repository URI - {}", e.getMessage());
       logger.debug("Exception follows", e);
+      exitCode = 1;
     }
+
+    return exitCode;
+  }
 
   private void displayHelp() {
     HelpFormatter helpFormatter = new HelpFormatter();

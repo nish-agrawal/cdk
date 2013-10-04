@@ -17,6 +17,6 @@ package com.cloudera.cdk.cli;
 
 public interface Command {
 
-  void run(String[] args);
+  int run(String[] args);
 
 }
