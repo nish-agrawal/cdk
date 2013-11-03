@@ -42,14 +42,14 @@ public class TestApplication {
       new Object[] { Lists.<String[]>newArrayList(new String[] { "-c --drop" }) },
       new Object[] {
         Lists.newArrayList(
-          new String[] { "--create", "--repo", "dsr:file:///tmp/cli-test", "--name", "test", "--schema", schemaStr },
-          new String[] { "--drop", "--repo", "dsr:file:///tmp/cli-test", "--name", "test" }
+          new String[] { "--create", "--repo", "repo:file:///tmp/cli-test", "--name", "test", "--schema", schemaStr },
+          new String[] { "--drop", "--repo", "repo:file:///tmp/cli-test", "--name", "test" }
         )
       },
       new Object[] {
         Lists.newArrayList(
-          new String[] { "--create", "--repo", "dsr:file:target/cli-test", "--name", "test", "--schema", schemaStr },
-          new String[] { "--drop", "--repo", "dsr:file:target/cli-test", "--name", "test" }
+          new String[] { "--create", "--repo", "repo:file:target/cli-test", "--name", "test", "--schema", schemaStr },
+          new String[] { "--drop", "--repo", "repo:file:target/cli-test", "--name", "test" }
         )
       }
     );
@@ -71,9 +71,9 @@ public class TestApplication {
     }
 
 //    try {
-//      logger.debug("Trying --create --repo dsr:hdfs://localhost:8020/tmp/cli-test --name test --schema {}", schemaStr);
-//      app.run(new String[] { "--create", "--repo", "dsr:hdfs://localhost:8020/tmp/cli-test", "--name", "test", "--schema", schemaStr });
-//      app.run(new String[] { "--drop", "--repo", "dsr:hdfs://localhost:8020/tmp/cli-test", "--name", "test" });
+//      logger.debug("Trying --create --repo repo:hdfs://localhost:8020/tmp/cli-test --name test --schema {}", schemaStr);
+//      app.run(new String[] { "--create", "--repo", "repo:hdfs://localhost:8020/tmp/cli-test", "--name", "test", "--schema", schemaStr });
+//      app.run(new String[] { "--drop", "--repo", "repo:hdfs://localhost:8020/tmp/cli-test", "--name", "test" });
 //    } catch (DatasetRepositoryException e) {
 //      logger.info("Failed to create an HDFS dataset; assuming HDFS is not running.", e);
 //    }

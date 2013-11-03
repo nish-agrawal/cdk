@@ -69,14 +69,7 @@ public class Application {
         if (commandLine.hasOption("format")) {
           String format = commandLine.getOptionValue("format");
 
-          // There's no support for Formats.parseFormat(String) yet. :(
-          if (format.equals("avro")) {
-            descBuilder.format(Formats.AVRO);
-          } else if (format.equals("parquet")) {
-            descBuilder.format(Formats.PARQUET);
-          } else {
-            throw new ParseException("Unknown dataset format:" + format + " specified");
-          }
+          descBuilder.format(Formats.fromString(format));
         }
 
         repo.create(commandLine.getOptionValue("name"), descBuilder.get());
@@ -103,8 +96,8 @@ public class Application {
       } else {
         displayHelp();
       }
-    } catch (ParseException e) {
-      logger.error(e.getMessage());
+    } catch (Exception e) {
+      System.out.println("Error: " + e.getMessage());
       logger.debug("Exception follows", e);
       exitCode = 1;
     }
