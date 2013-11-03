@@ -35,13 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 
-public class Application implements Command {
+public class Application {
 
   private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
@@ -54,7 +52,6 @@ public class Application implements Command {
     System.exit(application.run(args));
   }
 
-  @Override
   public int run(String[] args) {
     int exitCode = 0;
 
@@ -64,10 +61,10 @@ public class Application implements Command {
       parseOptions(args);
 
       if (commandLine.hasOption("create")) {
-        DatasetRepository repo = DatasetRepositories.connect(new URI(commandLine.getOptionValue("repo")));
+        DatasetRepository repo = DatasetRepositories.open(commandLine.getOptionValue("repo"));
 
         DatasetDescriptor.Builder descBuilder = new DatasetDescriptor.Builder()
-          .schema(commandLine.getOptionValue("schema"));
+          .schemaLiteral(commandLine.getOptionValue("schema"));
 
         if (commandLine.hasOption("format")) {
           String format = commandLine.getOptionValue("format");
@@ -84,7 +81,7 @@ public class Application implements Command {
 
         repo.create(commandLine.getOptionValue("name"), descBuilder.get());
       } else if (commandLine.hasOption("update")) {
-        DatasetRepository repo = DatasetRepositories.connect(new URI(commandLine.getOptionValue("repo")));
+        DatasetRepository repo = DatasetRepositories.open(commandLine.getOptionValue("repo"));
         String name = commandLine.getOptionValue("name");
 
         repo.update(
@@ -94,11 +91,11 @@ public class Application implements Command {
             .get()
         );
       } else if (commandLine.hasOption("drop")) {
-        DatasetRepository repo = DatasetRepositories.connect(new URI(commandLine.getOptionValue("repo")));
+        DatasetRepository repo = DatasetRepositories.open(commandLine.getOptionValue("repo"));
 
         repo.delete(commandLine.getOptionValue("name"));
       } else if (commandLine.hasOption("list")) {
-        DatasetRepository repo = DatasetRepositories.connect(new URI(commandLine.getOptionValue("repo")));
+        DatasetRepository repo = DatasetRepositories.open(commandLine.getOptionValue("repo"));
 
         for (String datasetName : repo.list()) {
           System.out.println(datasetName);
@@ -108,10 +105,6 @@ public class Application implements Command {
       }
     } catch (ParseException e) {
       logger.error(e.getMessage());
-      logger.debug("Exception follows", e);
-      exitCode = 1;
-    } catch (URISyntaxException e) {
-      logger.error("Invalid dataset repository URI - {}", e.getMessage());
       logger.debug("Exception follows", e);
       exitCode = 1;
     }
