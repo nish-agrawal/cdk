@@ -66,6 +66,7 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
 
   private final FileSystem fs;
   private final Path path;
+  private final DatasetDescriptor descriptor;
   private final Schema schema;
   private Class<E> recordClass;
 
@@ -75,8 +76,8 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
 
   private final BlockingQueue<Record> queue;
   private CountDownLatch isClosing;
-  private Thread thread;
-  private final Throwable[] workerExceptionHolder = new Throwable[1];
+  private Thread producerThread;
+  private final Throwable[] producerExceptionHolder = new Throwable[1];
   
   private final MorphlineContext morphlineContext;
   private final Command morphline;
@@ -92,8 +93,8 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
   public static final String MORPHLINE_QUEUE_CAPACITY = "morphlineQueueCapacity";
   
   /**
-   * Morphline variables can be passed from flume.conf to the morphline, e.g.:
-   * agent.sinks.solrSink.morphlineVariable.zkHost=127.0.0.1:2181/solr
+   * Morphline variables can be passed from DatasetDescriptor properties to the morphline, e.g.
+   * morphlineVariable.zkHost=127.0.0.1:2181/solr
    */
   public static final String MORPHLINE_VARIABLE_PARAM = "morphlineVariable";
   
@@ -101,6 +102,7 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
 
   private static final Logger logger = LoggerFactory.getLogger(MorphlineDatasetReader.class);
 
+  
   public MorphlineDatasetReader(FileSystem fileSystem, Path path, DatasetDescriptor descriptor) {
     Preconditions.checkArgument(fileSystem != null, "FileSystem cannot be null");
     Preconditions.checkArgument(path != null, "Path cannot be null");
@@ -108,6 +110,7 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
 
     this.fs = fileSystem;
     this.path = path;
+    this.descriptor = descriptor;
     this.schema = descriptor.getSchema();
     Preconditions.checkArgument(schema != null, "Schema cannot be null");
     Preconditions.checkArgument(Schema.Type.RECORD.equals(schema.getType()),
@@ -171,7 +174,7 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
 
     hasLookAhead = false;  
     next = null;
-    workerExceptionHolder[0] = null;
+    producerExceptionHolder[0] = null;
     isClosing = new CountDownLatch(1);
     queue.clear();
 
@@ -183,17 +186,17 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
     }
 
     
-    thread = new Thread(new Runnable() {
+    producerThread = new Thread(new Runnable() {
 
       @Override
       public void run() { 
         try {
           doRun();
-        } catch (RuntimeException e) {
-          synchronized (workerExceptionHolder) {
-            workerExceptionHolder[0] = e; // forward exception to consumer thread
+        } catch (Throwable e) {
+          synchronized (producerExceptionHolder) {
+            producerExceptionHolder[0] = e; // forward exception to consumer thread
           }
-          logger.warn("Morphline thread exception", e);
+          logger.warn("Morphline producer thread exception", e);
         }
       }
       
@@ -203,6 +206,7 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
           try {
             Record record = new Record();
             record.put(Fields.ATTACHMENT_BODY, inputStream);
+            record.put("datasetDescriptor", descriptor);
             try {
               Notifications.notifyBeginTransaction(morphline);
               Notifications.notifyStartSession(morphline);
@@ -239,7 +243,7 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
       
     });
     
-    thread.start();
+    producerThread.start();
     state = ReaderWriterState.OPEN;
   }
 
@@ -278,8 +282,8 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
     assert morphlineRecord != null;
     if (morphlineRecord == EOS) {
       Throwable t; 
-      synchronized (workerExceptionHolder) {
-        t = workerExceptionHolder[0];
+      synchronized (producerExceptionHolder) {
+        t = producerExceptionHolder[0];
       }
       if (t != null) {
         throw new DatasetReaderException(t);
@@ -302,8 +306,8 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
     logger.debug("Closing reader on path:{}", path);
     state = ReaderWriterState.CLOSED;
     try {
-      if (thread != null) {
-        thread.join();
+      if (producerThread != null) {
+        producerThread.join();
       }
     } catch (InterruptedException e) {
       ;
@@ -340,14 +344,13 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
     if (record instanceof IndexedRecord) {
       fillIndexed((IndexedRecord) record, morphlineRecord);
     } else {
-      fillReflect(record, morphlineRecord, schema);
+      fillReflect(record, morphlineRecord);
     }
     return record;
   }
 
   private void fillIndexed(IndexedRecord record, Record morphlineRecord) {
-    Schema schema = record.getSchema();
-    for (Schema.Field field : schema.getFields()) {
+    for (Schema.Field field : record.getSchema().getFields()) {
       // FIXME support arrays, nested records, etc.
       String first = (String) morphlineRecord.getFirstValue(field.name());
       Object value = makeValue(first, field); 
@@ -355,7 +358,7 @@ public class MorphlineDatasetReader<E> extends AbstractDatasetReader<E> {
     }
   }
 
-  private static void fillReflect(Object record, Record morphlineRecord, Schema schema) {
+  private void fillReflect(Object record, Record morphlineRecord) {
     for (Schema.Field field : schema.getFields()) {
       // FIXME support arrays, nested records, etc.
       String first = (String) morphlineRecord.getFirstValue(field.name());
