@@ -48,8 +48,8 @@ public class Formats {
   /**
    * Return a {@link Format} for the format name specified. If {@code formatName}
    * is not a valid name, an IllegalArgumentException is thrown. Currently the
-   * formats <q>avro</q> and <q>parquet</q> are supported. Format names are
-   * case sensitive.
+   * formats <q>avro</q> and <q>parquet</q> and <q>morphlines</q> are supported. 
+   * Format names are case sensitive.
    *
    * @since 0.9.0
    * @param formatName
@@ -61,6 +61,8 @@ public class Formats {
       return AVRO;
     } else if (formatName.equals("parquet")) {
       return PARQUET;
+    } else if (formatName.equals("morphlines")) {
+      return MORPHLINES;
     } else {
       throw new IllegalArgumentException("Unknown format type: " + formatName);
     }
