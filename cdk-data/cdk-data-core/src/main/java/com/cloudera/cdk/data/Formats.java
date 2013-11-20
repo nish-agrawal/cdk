@@ -41,6 +41,11 @@ public class Formats {
   public static final Format PARQUET = new Format("parquet");
 
   /**
+   * MORPHLINES: the <a href="http://cloudera.github.io/cdk/docs/current/cdk-morphlines/index.html">Morphlines ETL</a>
+   */
+  public static final Format MORPHLINES = new Format("morphlines");
+
+  /**
    * Return a {@link Format} for the format name specified. If {@code formatName}
    * is not a valid name, an IllegalArgumentException is thrown. Currently the
    * formats <q>avro</q> and <q>parquet</q> are supported. Format names are
