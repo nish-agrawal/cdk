@@ -1,0 +1,97 @@
+// Global settings
+description = "Cloudera Development Kit"
+
+buildscript {
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.1.3"
+        classpath "org.apache.avro:avro-compiler:1.7.5"
+    }
+
+}
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: "avro"
+    apply plugin: "idea"
+
+    sourceCompatibility = 1.6
+
+    group = "com.cloudera.cdk"
+    version = "0.9.0-SNAPSHOT"
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://repository.cloudera.com/artifactory/cloudera-repos/"
+        }
+    }
+}
+
+project(":cdk-data") {
+    description = "CDK Data Module"
+}
+
+project(":cdk-data:cdk-data-core") {
+    description = "CDK Data Core"
+
+    sourceSets.main.resources.srcDir("src/main/avro")
+
+    configurations {
+        testing
+    }
+
+    task testJar(type: Jar, dependsOn: testClasses) {
+        from sourceSets.test.allSource
+        classifier "test"
+    }
+
+    artifacts {
+        archives testJar
+        testing testJar
+    }
+
+    dependencies {
+        compile "org.slf4j:slf4j-api:1.6.1"
+        compile "com.google.guava:guava:11.0.2"
+        compile "org.apache.avro:avro:1.7.5"
+        compile "com.google.code.findbugs:annotations:2.0.1"
+        compile "org.apache.commons:commons-jexl:2.1.1"
+        compile "com.twitter:parquet:1.2.0"
+        compile "com.twitter:parquet-avro:1.2.0"
+
+        compile "org.apache.hadoop:hadoop-client:2.0.0-mr1-cdh4.4.0"
+        compile "org.apache.hadoop:hadoop-hdfs:2.0.0-cdh4.4.0"
+        // force a working commons-daemon override
+        compile "commons-daemon:commons-daemon:1.0.15"
+
+        testCompile "junit:junit:4.8.2"
+        testCompile "org.apache.hadoop:hadoop-minicluster:2.0.0-mr1-cdh4.4.0"
+        testCompile "org.slf4j:slf4j-log4j12:1.6.1"
+    }
+}
+
+project(":cdk-data:cdk-data-crunch") {
+    description = "CDK Data Crunch"
+
+    dependencies {
+        compile project(":cdk-data:cdk-data-core")
+
+        compile "org.apache.crunch:crunch-core:0.8.0-hadoop2"
+        compile "org.apache.hadoop:hadoop-client:2.0.0-mr1-cdh4.4.0"
+        compile "org.apache.hadoop:hadoop-hdfs:2.0.0-cdh4.4.0"
+        // force a working commons-daemon override
+        compile "commons-daemon:commons-daemon:1.0.15"
+
+        testCompile project(path: ":cdk-data:cdk-data-core", configuration: "testing")
+        testCompile "junit:junit:4.8.2"
+        testCompile "commons-httpclient:commons-httpclient:3.1"
+    }
+}
