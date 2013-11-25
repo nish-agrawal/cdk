@@ -15,18 +15,15 @@
  */
 package com.cloudera.cdk.data.filesystem;
 
-import com.cloudera.cdk.data.DatasetDescriptor;
-import com.cloudera.cdk.data.TestDatasetReaders;
-import com.cloudera.cdk.data.DatasetReader;
-import com.cloudera.cdk.data.DatasetReaderException;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
+import static com.cloudera.cdk.data.filesystem.DatasetTestUtilities.STRING_SCHEMA;
+import static com.cloudera.cdk.data.filesystem.DatasetTestUtilities.checkReaderBehavior;
 
 import java.io.IOException;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericData.Record;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -36,9 +33,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.cloudera.cdk.data.filesystem.DatasetTestUtilities.*;
-
-import org.apache.avro.generic.GenericData;
+import com.cloudera.cdk.data.DatasetDescriptor;
+import com.cloudera.cdk.data.DatasetReader;
+import com.cloudera.cdk.data.DatasetReaderException;
+import com.cloudera.cdk.data.TestDatasetReaders;
+import com.cloudera.cdk.data.filesystem.DatasetTestUtilities.RecordValidator;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 
 public class TestMorphlineDatasetReader extends TestDatasetReaders {
 
