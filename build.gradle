@@ -26,6 +26,21 @@ allprojects {
     group = "com.cloudera.cdk"
     version = "0.9.0-SNAPSHOT"
 
+    task testJar(type: Jar, dependsOn: testClasses) {
+        from sourceSets.test.output
+        classifier "test"
+    }
+
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier "sources"
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        from javadoc.destinationDir
+        classifier "javadoc"
+    }
+
     repositories {
         mavenLocal()
         mavenCentral()
@@ -49,19 +64,10 @@ project(":cdk-data:cdk-data-core") {
         testing
     }
 
-    task testJar(type: Jar, dependsOn: testClasses) {
-        from sourceSets.test.output
-        classifier "test"
-    }
-
-    task sourceJar(type: Jar) {
-        from sourceSets.main.allSource
-        classifier "source"
-    }
-
     artifacts {
         archives testJar // include test jar in standard archives
         archives sourceJar
+        archives javadocJar
 
         // seems like multi-project deps can't grab artifacts, just configurations
         testing testJar
@@ -89,6 +95,11 @@ project(":cdk-data:cdk-data-core") {
 
 project(":cdk-data:cdk-data-crunch") {
     description = "CDK Data Crunch"
+
+    artifacts {
+        archives sourceJar
+        archives javadocJar
+    }
 
     dependencies {
         compile project(":cdk-data:cdk-data-core")
