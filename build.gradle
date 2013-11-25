@@ -45,6 +45,7 @@ project(":cdk-data:cdk-data-core") {
     sourceSets.main.resources.srcDir("src/main/avro")
 
     configurations {
+        // this can't be called test for some reason. task name collision?
         testing
     }
 
@@ -53,8 +54,16 @@ project(":cdk-data:cdk-data-core") {
         classifier "test"
     }
 
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier "source"
+    }
+
     artifacts {
-        archives testJar
+        archives testJar // include test jar in standard archives
+        archives sourceJar
+
+        // seems like multi-project deps can't grab artifacts, just configurations
         testing testJar
     }
 
@@ -92,6 +101,7 @@ project(":cdk-data:cdk-data-crunch") {
 
         testCompile project(path: ":cdk-data:cdk-data-core", configuration: "testing")
         testCompile "junit:junit:4.8.2"
+        testCompile "org.slf4j:slf4j-log4j12:1.6.1"
         testCompile "commons-httpclient:commons-httpclient:3.1"
     }
 }
