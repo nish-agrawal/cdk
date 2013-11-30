@@ -9,8 +9,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.1.3"
-        classpath "org.apache.avro:avro-compiler:1.7.5"
+        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:${vers_gradle_avro}"
+        classpath "org.apache.avro:avro-compiler:${vers_avro}"
     }
 
 }
@@ -23,7 +23,6 @@ allprojects {
     sourceCompatibility = 1.6
 
     group = "com.cloudera.cdk"
-    version = "0.9.0-SNAPSHOT"
 
     task testJar(type: Jar, dependsOn: testClasses) {
         from sourceSets.test.output
@@ -44,7 +43,8 @@ allprojects {
         mavenLocal()
         mavenCentral()
         maven {
-            url "https://repository.cloudera.com/artifactory/cloudera-repos/"
+            name "com.cloudera.releases"
+            url url_cloudera_repo
         }
     }
 }
@@ -73,23 +73,24 @@ project(":cdk-data:cdk-data-core") {
     }
 
     dependencies {
-        compile "org.slf4j:slf4j-api:1.6.1"
-        compile "com.google.guava:guava:11.0.2"
-        compile "org.apache.avro:avro:1.7.5"
-        compile "com.google.code.findbugs:annotations:2.0.1"
-        compile "org.apache.commons:commons-jexl:2.1.1"
-        compile "com.twitter:parquet:1.2.0"
-        compile "com.twitter:parquet-avro:1.2.0"
+        compile "org.slf4j:slf4j-api:${vers_slf4j}"
+        compile "com.google.guava:guava:${vers_guava}"
+        compile "org.apache.avro:avro:${vers_avro}"
+        compile "com.google.code.findbugs:annotations:${vers_findbugs_jsr305}"
+        compile "org.apache.commons:commons-jexl:${vers_jexl}"
+        compile "com.twitter:parquet:${vers_parquet}"
+        compile "com.twitter:parquet-avro:${vers_parquet}"
 
-        compile "org.apache.hadoop:hadoop-client:2.0.0-mr1-cdh4.4.0"
-        compile "org.apache.hadoop:hadoop-hdfs:2.0.0-cdh4.4.0"
+        compile "org.apache.hadoop:hadoop-client:${vers_hadoop_mr1}"
+        compile "org.apache.hadoop:hadoop-hdfs:${vers_hadoop}"
         // force a working commons-daemon override
         compile "commons-daemon:commons-daemon:1.0.15"
 
         testCompile "junit:junit:4.8.2"
-        testCompile "org.apache.hadoop:hadoop-minicluster:2.0.0-mr1-cdh4.4.0"
-        testCompile "org.slf4j:slf4j-log4j12:1.6.1"
+        testCompile "org.apache.hadoop:hadoop-minicluster:${vers_hadoop_mr1}"
+        testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
     }
+
 }
 
 project(":cdk-data:cdk-data-crunch") {
@@ -103,15 +104,15 @@ project(":cdk-data:cdk-data-crunch") {
     dependencies {
         compile project(":cdk-data:cdk-data-core")
 
-        compile "org.apache.crunch:crunch-core:0.8.0-hadoop2"
-        compile "org.apache.hadoop:hadoop-client:2.0.0-mr1-cdh4.4.0"
-        compile "org.apache.hadoop:hadoop-hdfs:2.0.0-cdh4.4.0"
+        compile "org.apache.crunch:crunch-core:${vers_crunch}"
+        compile "org.apache.hadoop:hadoop-client:${vers_hadoop_mr1}"
+        compile "org.apache.hadoop:hadoop-hdfs:${vers_hadoop}"
         // force a working commons-daemon override
         compile "commons-daemon:commons-daemon:1.0.15"
 
         testCompile project(path: ":cdk-data:cdk-data-core", configuration: "testing")
-        testCompile "junit:junit:4.8.2"
-        testCompile "org.slf4j:slf4j-log4j12:1.6.1"
+        testCompile "junit:junit:${vers_junit}"
+        testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
         testCompile "commons-httpclient:commons-httpclient:3.1"
     }
 }
