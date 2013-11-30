@@ -1,1 +1,1 @@
-include ":cdk-data", ":cdk-data:cdk-data-core", ":cdk-data:cdk-data-crunch"
+include ":cdk-data", ":cdk-data:cdk-data-core", ":cdk-data:cdk-data-crunch", ":cdk-data:cdk-data-hbase"

@@ -116,3 +116,26 @@ project(":cdk-data:cdk-data-crunch") {
         testCompile "commons-httpclient:commons-httpclient:3.1"
     }
 }
+
+project(":cdk-data:cdk-data-hbase") {
+    description = "CDK Data HBase"
+
+    sourceSets.test.resources.srcDir("src/main/avro")
+
+    artifacts {
+        archives sourceJar
+        archives javadocJar
+    }
+
+    dependencies {
+        compile project(":cdk-data:cdk-data-core")
+
+        compile "org.apache.hbase:hbase:${vers_hbase}"
+        compile "com.google.guava:guava:${vers_guava}"
+
+        testCompile "junit:junit:${vers_junit}"
+        testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
+        testCompile "org.apache.hadoop:hadoop-minicluster:${vers_hadoop_mr1}"
+        testCompile "org.apache.hbase:hbase:${vers_hbase}:tests"
+    }
+}
