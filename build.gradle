@@ -3,139 +3,140 @@ description = "Cloudera Development Kit"
 
 buildscript {
 
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
 
-    dependencies {
-        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:${vers_gradle_avro}"
-        classpath "org.apache.avro:avro-compiler:${vers_avro}"
-    }
+  dependencies {
+    classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:${vers_gradle_avro}"
+    classpath "org.apache.avro:avro-compiler:${vers_avro}"
+  }
 
 }
 
 allprojects {
-    apply plugin: "java"
-    apply plugin: "avro"
-    apply plugin: "idea"
+  apply plugin: "java"
+  apply plugin: "avro"
+  apply plugin: "idea"
+  apply plugin: "maven-publish"
 
-    sourceCompatibility = 1.6
+  sourceCompatibility = 1.6
 
-    group = "com.cloudera.cdk"
+  group = "com.cloudera.cdk"
 
-    task testJar(type: Jar, dependsOn: testClasses) {
-        from sourceSets.test.output
-        classifier "test"
+  task testJar(type: Jar, dependsOn: testClasses) {
+    from sourceSets.test.output
+    classifier "test"
+  }
+
+  task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier "sources"
+  }
+
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    classifier "javadoc"
+  }
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+      name "com.cloudera.releases"
+      url url_cloudera_repo
     }
-
-    task sourceJar(type: Jar) {
-        from sourceSets.main.allSource
-        classifier "sources"
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        from javadoc.destinationDir
-        classifier "javadoc"
-    }
-
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven {
-            name "com.cloudera.releases"
-            url url_cloudera_repo
-        }
-    }
+  }
 }
 
 project(":cdk-data") {
-    description = "CDK Data Module"
+  description = "CDK Data Module"
 }
 
 project(":cdk-data:cdk-data-core") {
-    description = "CDK Data Core"
+  description = "CDK Data Core"
 
-    sourceSets.main.resources.srcDir("src/main/avro")
+  sourceSets.main.resources.srcDir("src/main/avro")
 
-    configurations {
-        // this can't be called test for some reason. task name collision?
-        testing
-    }
+  configurations {
+    // this can't be called test for some reason. task name collision?
+    testing
+  }
 
-    artifacts {
-        archives testJar // include test jar in standard archives
-        archives sourceJar
-        archives javadocJar
+  artifacts {
+    archives testJar // include test jar in standard archives
+    archives sourceJar
+    archives javadocJar
 
-        // seems like multi-project deps can't grab artifacts, just configurations
-        testing testJar
-    }
+    // seems like multi-project deps can't grab artifacts, just configurations
+    testing testJar
+  }
 
-    dependencies {
-        compile "org.slf4j:slf4j-api:${vers_slf4j}"
-        compile "com.google.guava:guava:${vers_guava}"
-        compile "org.apache.avro:avro:${vers_avro}"
-        compile "com.google.code.findbugs:annotations:${vers_findbugs_jsr305}"
-        compile "org.apache.commons:commons-jexl:${vers_jexl}"
-        compile "com.twitter:parquet:${vers_parquet}"
-        compile "com.twitter:parquet-avro:${vers_parquet}"
+  dependencies {
+    compile "org.slf4j:slf4j-api:${vers_slf4j}"
+    compile "com.google.guava:guava:${vers_guava}"
+    compile "org.apache.avro:avro:${vers_avro}"
+    compile "com.google.code.findbugs:annotations:${vers_findbugs_jsr305}"
+    compile "org.apache.commons:commons-jexl:${vers_jexl}"
+    compile "com.twitter:parquet:${vers_parquet}"
+    compile "com.twitter:parquet-avro:${vers_parquet}"
 
-        compile "org.apache.hadoop:hadoop-client:${vers_hadoop_mr1}"
-        compile "org.apache.hadoop:hadoop-hdfs:${vers_hadoop}"
-        // force a working commons-daemon override
-        compile "commons-daemon:commons-daemon:1.0.15"
+    compile "org.apache.hadoop:hadoop-client:${vers_hadoop_mr1}"
+    compile "org.apache.hadoop:hadoop-hdfs:${vers_hadoop}"
+    // force a working commons-daemon override
+    compile "commons-daemon:commons-daemon:1.0.15"
 
-        testCompile "junit:junit:4.8.2"
-        testCompile "org.apache.hadoop:hadoop-minicluster:${vers_hadoop_mr1}"
-        testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
-    }
+    testCompile "junit:junit:4.8.2"
+    testCompile "org.apache.hadoop:hadoop-minicluster:${vers_hadoop_mr1}"
+    testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
+  }
 
 }
 
 project(":cdk-data:cdk-data-crunch") {
-    description = "CDK Data Crunch"
+  description = "CDK Data Crunch"
 
-    artifacts {
-        archives sourceJar
-        archives javadocJar
-    }
+  artifacts {
+    archives sourceJar
+    archives javadocJar
+  }
 
-    dependencies {
-        compile project(":cdk-data:cdk-data-core")
+  dependencies {
+    compile project(":cdk-data:cdk-data-core")
 
-        compile "org.apache.crunch:crunch-core:${vers_crunch}"
-        compile "org.apache.hadoop:hadoop-client:${vers_hadoop_mr1}"
-        compile "org.apache.hadoop:hadoop-hdfs:${vers_hadoop}"
-        // force a working commons-daemon override
-        compile "commons-daemon:commons-daemon:1.0.15"
+    compile "org.apache.crunch:crunch-core:${vers_crunch}"
+    compile "org.apache.hadoop:hadoop-client:${vers_hadoop_mr1}"
+    compile "org.apache.hadoop:hadoop-hdfs:${vers_hadoop}"
+    // force a working commons-daemon override
+    compile "commons-daemon:commons-daemon:1.0.15"
 
-        testCompile project(path: ":cdk-data:cdk-data-core", configuration: "testing")
-        testCompile "junit:junit:${vers_junit}"
-        testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
-        testCompile "commons-httpclient:commons-httpclient:3.1"
-    }
+    testCompile project(path: ":cdk-data:cdk-data-core", configuration: "testing")
+    testCompile "junit:junit:${vers_junit}"
+    testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
+    testCompile "commons-httpclient:commons-httpclient:3.1"
+  }
 }
 
 project(":cdk-data:cdk-data-hbase") {
-    description = "CDK Data HBase"
+  description = "CDK Data HBase"
 
-    sourceSets.test.resources.srcDir("src/main/avro")
+  sourceSets.test.resources.srcDir("src/main/avro")
 
-    artifacts {
-        archives sourceJar
-        archives javadocJar
-    }
+  artifacts {
+    archives sourceJar
+    archives javadocJar
+  }
 
-    dependencies {
-        compile project(":cdk-data:cdk-data-core")
+  dependencies {
+    compile project(":cdk-data:cdk-data-core")
 
-        compile "org.apache.hbase:hbase:${vers_hbase}"
-        compile "com.google.guava:guava:${vers_guava}"
+    compile "org.apache.hbase:hbase:${vers_hbase}"
+    compile "com.google.guava:guava:${vers_guava}"
 
-        testCompile "junit:junit:${vers_junit}"
-        testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
-        testCompile "org.apache.hadoop:hadoop-minicluster:${vers_hadoop_mr1}"
-        testCompile "org.apache.hbase:hbase:${vers_hbase}:tests"
-    }
+    testCompile "junit:junit:${vers_junit}"
+    testCompile "org.slf4j:slf4j-log4j12:${vers_slf4j}"
+    testCompile "org.apache.hadoop:hadoop-minicluster:${vers_hadoop_mr1}"
+    testCompile "org.apache.hbase:hbase:${vers_hbase}:tests"
+  }
 }
