@@ -3,6 +3,15 @@
 All past CDK releases are documented on this page. Upcoming release dates can be found in
 [JIRA](https://issues.cloudera.org/browse/CDK#selectedTab=com.atlassian.jira.plugin.system.project%3Aversions-panel).
 
+## Version 0.9.2
+
+Release date: TBD
+
+Version 0.9.2 includes the following bug fixes:
+
+* Morphlines Library
+    * CDK-282 `readRCFile` command is broken (Prasanna Rajaperumal via whoschek)
+
 ## Version 0.9.1
 
 Release date: January 13, 2014
