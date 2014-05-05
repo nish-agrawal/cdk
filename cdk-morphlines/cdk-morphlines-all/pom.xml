@@ -18,7 +18,7 @@
   <parent>
     <groupId>com.cloudera.cdk</groupId>
     <artifactId>cdk-morphlines</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
