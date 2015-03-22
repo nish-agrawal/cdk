@@ -172,6 +172,9 @@
     <vers.jodatime>2.3</vers.jodatime>
     <vers.jcommander>1.35</vers.jcommander>
     <vers.spark>${cdh.spark.version}</vers.spark>
+    <vers.hadoop-aws>2.6.0</vers.hadoop-aws>
+    <vers.apache-httpcomponents>4.2</vers.apache-httpcomponents>
+    <vers.jets3t>0.9.0</vers.jets3t>
 
     <!-- Plugin versions -->
     <vers.doxia-module-markdown>1.4</vers.doxia-module-markdown>
@@ -201,6 +204,11 @@
     <url.jira>http://issues.cloudera.com/browse/CDK</url.jira>
 
     <github.global.server>github</github.global.server>
+
+    <!-- Until we add a mock, use S3 credentials from the environment -->
+    <s3.id>${env.S3_ID}</s3.id>
+    <s3.key>${env.S3_KEY}</s3.key>
+    <s3.bucket>${env.S3_BUCKET}</s3.bucket>
   </properties>
 
   <repositories>
@@ -755,6 +763,11 @@
         <artifactId>kite-hadoop-compatibility</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-aws</artifactId>
+        <version>${vers.hadoop-aws}</version>
+      </dependency>
 
       <!-- HBase dependencies -->
       <dependency>
@@ -849,6 +862,11 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl</artifactId>
         <version>${vers.jexl}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.java.dev.jets3t</groupId>
+        <artifactId>jets3t</artifactId>
+        <version>${vers.jets3t}</version>
       </dependency>
 
       <!-- Logging -->
@@ -951,6 +969,16 @@
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>${vers.commons-lang}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${vers.apache-httpcomponents}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>${vers.apache-httpcomponents}</version>
       </dependency>
 
       <!-- Testing -->
