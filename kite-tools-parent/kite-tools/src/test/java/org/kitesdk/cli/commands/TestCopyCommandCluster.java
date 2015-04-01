@@ -22,14 +22,10 @@ import com.google.common.io.Files;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.LocalJobRunner;
@@ -62,11 +58,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class TestCopyCommandCluster extends MiniDFSTest {
 
-  private static final String source = "users_source";
-  private static final String dest = "users_dest";
-  private static final String avsc = "target/user.avsc";
-  private static final Pattern UPPER_CASE = Pattern.compile("^[A-Z]+\\d*$");
-  private static String repoUri;
+  protected static final String source = "users_source";
+  protected static final String dest = "users_dest";
+  protected static final String avsc = "target/user.avsc";
+  protected static String repoUri;
   private static int numRecords;
 
   @BeforeClass
@@ -97,7 +92,8 @@ public class TestCopyCommandCluster extends MiniDFSTest {
     // keep this in sync with the number of lines above
     numRecords = 14;
 
-    TestUtil.run("-v", "csv-schema", csv, "-o", avsc, "--class", "User");
+    TestUtil.run("-v", "csv-schema", csv, "-o", avsc, "--class", "User",
+      "--require", "id");
     TestUtil.run("create", source, "-s", avsc,
         "-r", repoUri, "-d", "target/data");
     TestUtil.run("csv-import", csv, source, "-r", repoUri, "-d", "target/data");
@@ -108,8 +104,8 @@ public class TestCopyCommandCluster extends MiniDFSTest {
     TestUtil.run("delete", source, "-r", repoUri, "-d", "target/data");
   }
 
-  private Logger console;
-  private CopyCommand command;
+  protected Logger console;
+  protected CopyCommand command;
 
   @Before
   public void createDestination() throws Exception {
@@ -143,6 +139,10 @@ public class TestCopyCommandCluster extends MiniDFSTest {
 
   @Test
   public void testCopyWithoutCompaction() throws Exception {
+    testCopyWithoutCompaction(1);
+  }
+
+  public void testCopyWithoutCompaction(int expectedFiles) throws Exception {
     command.repoURI = repoUri;
     command.noCompaction = true;
     command.datasets = Lists.newArrayList(source, dest);
@@ -157,16 +157,21 @@ public class TestCopyCommandCluster extends MiniDFSTest {
     int size = DatasetTestUtilities.datasetSize(ds);
     Assert.assertEquals("Should contain copied records", numRecords, size);
 
-    Assert.assertEquals("Should produce 1 files",
-        1, Iterators.size(ds.pathIterator()));
+    Path[] paths = Iterators.toArray(ds.pathIterator(), Path.class);
+    Assert.assertEquals("Should produce " + expectedFiles + " files: " + Arrays.toString(paths),
+        expectedFiles, Iterators.size(ds.pathIterator()));
 
     verify(console).info("Added {} records to \"{}\"", (long) numRecords, dest);
     verifyNoMoreInteractions(console);
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testCopyWithNumWriters() throws Exception {
+    testCopyWithNumWriters(3);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testCopyWithNumWriters(int expectedFiles) throws Exception {
     Assume.assumeTrue(setLocalReducerMax(getConfiguration(), 3));
 
     command.repoURI = repoUri;
@@ -183,10 +188,8 @@ public class TestCopyCommandCluster extends MiniDFSTest {
     int size = DatasetTestUtilities.datasetSize(ds);
     Assert.assertEquals("Should contain copied records", numRecords, size);
 
-    List<Path> paths = new ArrayList<Path>();
-    Iterators.addAll(paths, ds.pathIterator());
-    Assert.assertEquals("Should produce 3 files",
-        3, Iterators.size(ds.pathIterator()));
+    Assert.assertEquals("Should produce " + expectedFiles + " files",
+        expectedFiles, Iterators.size(ds.pathIterator()));
 
     verify(console).info("Added {} records to \"{}\"", (long) numRecords, dest);
     verifyNoMoreInteractions(console);
