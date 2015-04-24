@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Level;
@@ -253,7 +254,7 @@ public class Main extends Configured implements Tool {
     PropertyConfigurator.configure(
         Main.class.getResource("/kite-cli-logging.properties"));
     Logger console = LoggerFactory.getLogger(Main.class);
-    int rc = ToolRunner.run(new Configuration(), new Main(console), args);
+    int rc = ToolRunner.run(new HiveConf(), new Main(console), args);
     System.exit(rc);
   }
 }
