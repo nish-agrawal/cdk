@@ -19,14 +19,14 @@
   <parent>
     <groupId>com.cloudera.cdh</groupId>
     <artifactId>cdh-root</artifactId>
-    <version>5.3.4</version>
+    <version>5.3.5</version>
     <relativePath/>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.kitesdk</groupId>
   <artifactId>kite-parent</artifactId>
-  <version>0.15.0-cdh5.3.4</version>
+  <version>0.15.0-cdh5.3.5</version>
   <packaging>pom</packaging>
 
   <modules>
