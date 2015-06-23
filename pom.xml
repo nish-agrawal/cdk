@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.kitesdk</groupId>
   <artifactId>kite-parent</artifactId>
-  <version>0.15.0-cdh5.3.5-SNAPSHOT</version>
+  <version>0.15.0-cdh5.3.6-SNAPSHOT-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
