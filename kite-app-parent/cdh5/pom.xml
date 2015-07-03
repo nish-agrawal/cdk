@@ -19,7 +19,7 @@
   <parent>
     <groupId>com.cloudera.cdh</groupId>
     <artifactId>cdh-root</artifactId>
-    <version>5.4.3</version>
+    <version>5.4.4</version>
     <relativePath/>
   </parent>
 
@@ -75,7 +75,7 @@
 
   <properties>
     <!-- dependency version properties -->
-    <kite.version>1.0.0-cdh5.4.3</kite.version>
+    <kite.version>1.0.0-cdh5.4.4</kite.version>
     <kite.avro.version>${cdh.avro.version}</kite.avro.version>
     <kite.crunch.version>${cdh.crunch.version}</kite.crunch.version>
     <kite.findbugs.version>2.0.1</kite.findbugs.version>
