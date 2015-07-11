@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.kitesdk</groupId>
     <artifactId>kite-morphlines</artifactId>
-    <version>0.15.0-cdh5.3.6-SNAPSHOT</version>
+    <version>0.15.0-cdh5.3.7-SNAPSHOT</version>
   </parent>
 
   <artifactId>kite-morphlines-avro</artifactId>
