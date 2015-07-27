@@ -56,7 +56,7 @@ class FileSystemWriter<E> extends AbstractDatasetWriter<E> {
   private Path tempPath;
   private Path finalPath;
   private ReaderWriterState state;
-  private int count = 0;
+  private long count = 0;
 
   @VisibleForTesting
   final Configuration conf;
