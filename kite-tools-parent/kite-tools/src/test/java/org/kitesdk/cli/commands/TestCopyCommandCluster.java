@@ -22,6 +22,8 @@ import com.google.common.io.Files;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -29,6 +31,7 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.LocalJobRunner;
 import org.apache.hadoop.mapreduce.Job;
 import org.junit.After;
@@ -64,6 +67,7 @@ public class TestCopyCommandCluster extends MiniDFSTest {
   private static final String avsc = "target/user.avsc";
   private static final Pattern UPPER_CASE = Pattern.compile("^[A-Z]+\\d*$");
   private static String repoUri;
+  private static int numRecords;
 
   @BeforeClass
   public static void createSourceDataset() throws Exception {
@@ -80,7 +84,18 @@ public class TestCopyCommandCluster extends MiniDFSTest {
     writer.append("4,user4,user4@example.com\n");
     writer.append("5,user5,user5@example.com\n");
     writer.append("6,user6,user6@example.com\n");
+    writer.append("7,user7,user7@example.com\n");
+    writer.append("8,user8,user8@example.com\n");
+    writer.append("9,user9,user9@example.com\n");
+    writer.append("10,user10,user10@example.com\n");
+    writer.append("11,user11,user11@example.com\n");
+    writer.append("12,user12,user12@example.com\n");
+    writer.append("13,user13,user13@example.com\n");
+    writer.append("14,user14,user14@example.com\n");
     writer.close();
+
+    // keep this in sync with the number of lines above
+    numRecords = 14;
 
     TestUtil.run("-v", "csv-schema", csv, "-o", avsc, "--class", "User");
     TestUtil.run("create", source, "-s", avsc,
@@ -120,9 +135,9 @@ public class TestCopyCommandCluster extends MiniDFSTest {
 
     DatasetRepository repo = DatasetRepositories.repositoryFor("repo:" + repoUri);
     int size = DatasetTestUtilities.datasetSize(repo.load("default", dest));
-    Assert.assertEquals("Should contain copied records", 6, size);
+    Assert.assertEquals("Should contain copied records", numRecords, size);
 
-    verify(console).info("Added {} records to \"{}\"", 6l, dest);
+    verify(console).info("Added {} records to \"{}\"", (long) numRecords, dest);
     verifyNoMoreInteractions(console);
   }
 
@@ -140,12 +155,12 @@ public class TestCopyCommandCluster extends MiniDFSTest {
         (FileSystemDataset<GenericData.Record>) repo.<GenericData.Record>
             load("default", dest);
     int size = DatasetTestUtilities.datasetSize(ds);
-    Assert.assertEquals("Should contain copied records", 6, size);
+    Assert.assertEquals("Should contain copied records", numRecords, size);
 
     Assert.assertEquals("Should produce 1 files",
         1, Iterators.size(ds.pathIterator()));
 
-    verify(console).info("Added {} records to \"{}\"", 6l, dest);
+    verify(console).info("Added {} records to \"{}\"", (long) numRecords, dest);
     verifyNoMoreInteractions(console);
   }
 
@@ -166,12 +181,14 @@ public class TestCopyCommandCluster extends MiniDFSTest {
         (FileSystemDataset<GenericData.Record>) repo.<GenericData.Record>
             load("default", dest);
     int size = DatasetTestUtilities.datasetSize(ds);
-    Assert.assertEquals("Should contain copied records", 6, size);
+    Assert.assertEquals("Should contain copied records", numRecords, size);
 
+    List<Path> paths = new ArrayList<Path>();
+    Iterators.addAll(paths, ds.pathIterator());
     Assert.assertEquals("Should produce 3 files",
         3, Iterators.size(ds.pathIterator()));
 
-    verify(console).info("Added {} records to \"{}\"", 6l, dest);
+    verify(console).info("Added {} records to \"{}\"", (long) numRecords, dest);
     verifyNoMoreInteractions(console);
   }
 
@@ -221,12 +238,12 @@ public class TestCopyCommandCluster extends MiniDFSTest {
         (FileSystemDataset<GenericData.Record>) repo.<GenericData.Record>
             load("default", "dest_partitioned");
     int size = DatasetTestUtilities.datasetSize(ds);
-    Assert.assertEquals("Should contain copied records", 6, size);
+    Assert.assertEquals("Should contain copied records", numRecords, size);
 
     Assert.assertEquals("Should produce 2 partitions",
         2, Iterators.size(ds.pathIterator()));
 
-    verify(console).info("Added {} records to \"{}\"", 6l, "dest_partitioned");
+    verify(console).info("Added {} records to \"{}\"", (long) numRecords, "dest_partitioned");
     verifyNoMoreInteractions(console);
   }
 
