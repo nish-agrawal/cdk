@@ -172,7 +172,7 @@
     <vers.jodatime>2.3</vers.jodatime>
     <vers.jcommander>1.35</vers.jcommander>
     <vers.spark>${cdh.spark.version}</vers.spark>
-    <vers.hadoop-aws>2.6.0</vers.hadoop-aws>
+    <vers.hadoop-aws>${cdh.hadoop.version}</vers.hadoop-aws>
 
     <!-- Plugin versions -->
     <vers.doxia-module-markdown>1.4</vers.doxia-module-markdown>
