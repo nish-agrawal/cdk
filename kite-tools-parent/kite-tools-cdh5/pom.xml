@@ -152,7 +152,7 @@
       <groupId>org.apache.crunch</groupId>
       <artifactId>crunch-core</artifactId>
       <scope>compile</scope>
-      <version>${vers.crunch-cdh5}</version>
+      <version>${vers.crunch}</version>
       <exclusions>
         <exclusion>
           <!-- Avro is provided
