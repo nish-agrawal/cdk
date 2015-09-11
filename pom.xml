@@ -137,7 +137,7 @@
     <vers.avro-base>1.7.6</vers.avro-base> <!-- The version CDH is based on -->
     <vers.avro>${cdh.avro.version}</vers.avro>
     <vers.commons-codec>1.4</vers.commons-codec>
-    <vers.commons-io>2.1</vers.commons-io>
+    <vers.commons-io>2.4</vers.commons-io>
     <vers.commons-logging>1.1.3</vers.commons-logging>
     <vers.commons-lang>2.6</vers.commons-lang>
     <vers.crunch-base>0.11.0</vers.crunch-base> <!-- The version CDH is based on -->
