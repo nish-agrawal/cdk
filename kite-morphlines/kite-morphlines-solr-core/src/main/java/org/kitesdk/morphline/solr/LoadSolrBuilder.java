@@ -175,7 +175,12 @@ public final class LoadSolrBuilder implements CommandBuilder {
       SolrInputDocument doc = new SolrInputDocument(new HashMap(2 * map.size()));
       for (Map.Entry<String, Collection<Object>> entry : map.entrySet()) {
         String key = entry.getKey();
-        doc.setField(key, entry.getValue(), getBoost(key));
+	Collection<Object> values = entry.getValue();
+	if (values.size() == 1 && values.iterator().next() instanceof Map) {
+	  doc.setField(key, values.iterator().next(), getBoost(key)); // it is an atomic update
+	} else {
+	  doc.setField(key, values, getBoost(key));
+	}
       }
       return doc;
     }
