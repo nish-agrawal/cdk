@@ -19,14 +19,14 @@
   <parent>
     <groupId>com.cloudera.cdh</groupId>
     <artifactId>cdh-root</artifactId>
-    <version>5.5.5-SNAPSHOT</version>
+    <version>5.5.4-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.kitesdk</groupId>
   <artifactId>kite-app-parent-cdh5</artifactId>
-  <version>1.0.0-cdh5.5.5-SNAPSHOT</version>
+  <version>1.0.0-cdh5.5.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Kite Application POM for CDH5</name>
@@ -75,7 +75,7 @@
 
   <properties>
     <!-- dependency version properties -->
-    <kite.version>1.0.0-cdh5.5.5-SNAPSHOT</kite.version>
+    <kite.version>1.0.0-cdh5.5.4-SNAPSHOT</kite.version>
     <kite.avro.version>${cdh.avro.version}</kite.avro.version>
     <kite.crunch.version>${cdh.crunch.version}</kite.crunch.version>
     <kite.findbugs.version>2.0.1</kite.findbugs.version>
