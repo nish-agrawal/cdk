@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.kitesdk</groupId>
     <artifactId>kite-tools-parent</artifactId>
-    <version>1.0.0-cdh5.5.4-SNAPSHOT</version>
+    <version>1.0.0-cdh5.5.5-SNAPSHOT</version>
   </parent>
 
   <name>Kite Tools Runtime Module</name>
