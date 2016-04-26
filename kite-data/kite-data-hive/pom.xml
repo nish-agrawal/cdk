@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.kitesdk</groupId>
     <artifactId>kite-data</artifactId>
-    <version>1.0.0-cdh5.6.1-SNAPSHOT</version>
+    <version>1.0.0-cdh5.6.1</version>
   </parent>
 
   <name>Kite Data Hive Module</name>
