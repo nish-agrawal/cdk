@@ -38,7 +38,7 @@ public class EnvironmentTest extends Assert {
     if (version != null) {
       int i = version.indexOf('-');
       if (i >= 0) {
-        // e.g. strip off "-cdh5.9.2-SNAPSHOT" from "4.10.3-cdh5.9.2-SNAPSHOT"
+        // e.g. strip off "-cdh5.9.2" from "4.10.3-cdh5.9.2"
         version = version.substring(0, i); 
       }
     }
